@@ -1,19 +1,22 @@
+mod cli_parser;
+mod crypt;
+mod encrypt;
+use crypt::crypt_file;
+use encrypt::decrypt_file;
+use cli_parser::Commands;
 use clap::Parser;
 
-
-/// Search for a pattern in a file and display the lines that contain it.
-#[derive(Parser)]
-struct Cli {
-    pattern: String,
-    path: std::path::PathBuf,
-}
-
-fn alternate_file(file_path: &std::path::PathBuf) {
-    let content = std::fs::read_to_string(file_path).expect("could not read file");
-    std::fs::write(file_path, content + "test").expect("Could not write to file!");
-}
-
 fn main() {
-    let args = Cli::parse();
-    alternate_file(&args.path);
+    let cli = cli_parser::Cli::parse();
+    
+    match &cli.command {
+        Commands::Crypt(args) => {
+            println!("Crypting file in path: {:?}", &args.path);
+            crypt_file(&args.path, &args.password);
+        } ,
+        Commands::Decrypt(args) => {
+            println!("Decrpyting file in path: {:?}", &args.path);
+            decrypt_file(&args.path, &args.password);
+        },
+    }
 }
